@@ -1,23 +1,34 @@
 
 
 (require 'package)
-;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-;; 'failed load gnu archive' preventer
-;; to put infront package-initialize ;; works!
-(setq package-enable-at-startup nil)
-(setq package-archives '())
-;; (add-to-list 'package-archives '("elpa"      . "http://elpa.gnu.org/packages") t)
-;; (add-to-list 'package-archives '("elpa" . "http://tromey.com/elpa/") t)
-(add-to-list 'package-archives '("melpa"     . "http://melpa.org/packages/") t)
-;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
-;; M-x package-refresh-contents
-(package-initialize)
-(package-refresh-contents)
 
-;; Bootstrap `use-package`
+;; Add MELPA and other archives
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			 ("elpa" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
+
+
+
+
+;; Initialize the package system
+(package-initialize)
+
+;; Ensure package archives are up to date
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; Ensure use-package is installed
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
+
+;; Load use-package
+(eval-when-compile
+  (require 'use-package))
+
+
+
 
 ;; load myinit.org
 (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org"))

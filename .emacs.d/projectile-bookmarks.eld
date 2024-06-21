@@ -1,0 +1,1 @@
+("/Users/josephus/projects/python/chart-prediction/" "/Users/josephus/emacs/emacs-for-python-lsp/")

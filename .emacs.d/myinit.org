@@ -1,7 +1,5 @@
 #+STARTUP: overview hidestars indent align inlineimages
 
-#+STARTUP: overview hidestars indent align inlineimages
-
 * Settings
   
 #+BEGIN_SRC emacs-lisp
@@ -16,19 +14,20 @@
   (when (fboundp 'global-display-line-numbers-mode)
     (global-display-line-numbers-mode 1))  
 
-  ;; add .bin/local to PATH variable the current
-  ;; this is because I start emacs with
-  ;; env HOME=$HOME/somefolder
 
   (defun joindirs (root &rest dirs)
     "Joins a series of directories together,
-       like Python's os.path.join
-       (joindirs \"/a\" \"b\" \"c\") => /a/b/c"
+         like Python's os.path.join
+         (joindirs \"/a\" \"b\" \"c\") => /a/b/c"
     (if (not dirs)
         root
       (apply 'joindirs
              (expand-file-name (car dirs) root)
              (cdr dirs))))
+
+  ;; add .bin/local to PATH variable the current
+  ;; this is because I start emacs with
+  ;; env HOME=$HOME/somefolder
 
   (setenv "PATH" (concat (getenv "PATH") ":"
                          (joindirs (getenv "HOME") ".bin" "local")))
@@ -154,6 +153,12 @@
                            (require 'lsp-pyright)
                            (lsp))))
 
+  ;; Install and configure pyvenv for virtual environment management
+  (use-package pyvenv
+    :ensure t
+    :config
+    (pyvenv-mode 1)
+    (setenv "WORKON_HOME" (get-conda-envs-dir)))
 #+END_SRC
 
 * Python settings

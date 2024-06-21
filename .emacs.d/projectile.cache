@@ -1,0 +1,1 @@
+#s(hash-table size 65 test equal rehash-size 1.5 rehash-threshold 0.8125 data ("/Users/josephus/projects/python/chart-prediction/" (".gitingore" "README.md" "chart_prediction/__init__.py" "chart_prediction/helpers.py" "chart_prediction/model.py" "chart_prediction/processor.py" "pyproject.toml" "tests/__init__.py" "tests/test_model.py" "tests/test_processor.py")))
