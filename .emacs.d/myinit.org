@@ -1,6 +1,7 @@
 #+STARTUP: overview hidestars indent align inlineimages
 
-* Settings
+* S
+ettings
   
 #+BEGIN_SRC emacs-lisp
 
@@ -30,7 +31,7 @@
   ;; env HOME=$HOME/somefolder
 
   (setenv "PATH" (concat (getenv "PATH") ":"
-                         (joindirs (getenv "HOME") ".bin" "local")))
+                         (joindirs (getenv "ORIG_HOME") ".bin" "local")))
 
   ;; get conda environment
   (require 'json)
