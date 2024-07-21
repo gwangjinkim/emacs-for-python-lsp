@@ -1,7 +1,6 @@
 #+STARTUP: overview hidestars indent align inlineimages
 
-* S
-ettings
+* Settings
   
 #+BEGIN_SRC emacs-lisp
 
@@ -13,13 +12,20 @@ ettings
 
   ;; enable line numbers globally
   (when (fboundp 'global-display-line-numbers-mode)
-    (global-display-line-numbers-mode 1))  
+    (global-display-line-numbers-mode 1))
+
+  ;; nicer theme
+  (use-package sweet-theme
+    :ensure t
+    :init
+    (load-theme 'sweet t))
+
 
 
   (defun joindirs (root &rest dirs)
     "Joins a series of directories together,
-         like Python's os.path.join
-         (joindirs \"/a\" \"b\" \"c\") => /a/b/c"
+                 like Python's os.path.join
+                 (joindirs \"/a\" \"b\" \"c\") => /a/b/c"
     (if (not dirs)
         root
       (apply 'joindirs
@@ -119,7 +125,18 @@ ettings
            (go-mode . lsp))
     :commands lsp
     :config
-    (setq lsp-prefer-flymake nil)) ;; Use flycheck instead of flymake
+    ;; Define the custom function
+    (defun my/lsp-python-send-line ()
+      "Send the current line to the inferior Python process."
+      (interactive)
+      (let ((current-line (thing-at-point 'line t)))
+        (python-shell-send-string current-line)))
+
+    ;; Bind the custom function to a key combination
+    (global-set-key (kbd "C-l") 'my/lsp-python-send-line)
+
+    ;; Use flycheck instead of flymake
+    (setq lsp-prefer-flymake nil))
 
   (use-package lsp-ui
     :ensure t
@@ -160,7 +177,112 @@ ettings
     :config
     (pyvenv-mode 1)
     (setenv "WORKON_HOME" (get-conda-envs-dir)))
+
+  ;; debugging
+  (let ((debugging-method :dape))
+    (cond ((eq debugging-method :dap-mode)
+           (use-package dap-mode
+             :ensure t
+             :after lsp-mode
+             :config
+             (dap-auto-configure-mode)
+             (require 'dap-python)
+             (setq dap-python-debugger 'debugpy)
+
+             ;; Keybindings for debugging
+             (global-set-key (kbd "C-c d b b") 'dap-breakpoint-toggle) ;; breakpoint
+             (global-set-key (kbd "C-c d s") 'dap-debug)
+             (global-set-key (kbd "C-c d c") 'dap-continue)
+             (global-set-key (kbd "C-c d o") 'dap-next)
+             (global-set-key (kbd "C-c d i") 'dap-step-in)
+             (global-set-key (kbd "C-c d u") 'dap-step-out)
+             (global-set-key (kbd "C-c d q") 'dap-disconnect)
+             (global-set-key (kbd "C-c d r") 'dap-restart-frame)
+
+             ;; Set a conditional breakpoint
+             (global-set-key (kbd "C-c d b c") 'dap-breakpoint-condition) ;; condition
+
+             ;; Add an exception breakpoint
+             (global-set-key (kbd "C-c d b e") 'dap-breakpoint-add) ;; exception
+
+             (global-set-key (kbd "C-c d g") 'my/python-debug-config)
+
+             ;; Optional: enable logging for dap-mode
+             (setq dap-print-io t))
+
+           ;; pip install debugpy
+
+           ;; (use-package dap-ui
+           ;;   :ensure t
+           ;;   :config
+           ;;   (dap-ui-mode 1)
+           ;;   (dap-ui-controls-mode 1))
+
+
+           (setq dap-python-executable "python3")
+
+           (defun my/python-debug-config ()
+             "Set up the debug configuration for Python."
+             (interactive)
+             (dap-debug
+              (list :type "python"
+                    :args ""
+                    :cwd (projectile-project-root)  ;; Ensure you are in the correct project root
+                    :program (buffer-file-name)
+                    :request "launch"
+                    :name "Python :: Run Configuration"
+                    :env '(("PYTHONPATH" . (projectile-project-root)))))))
+          ((eq debugging-method :dape)
+           (use-package dape
+             :preface
+             ;; By default dape shares the same keybinding prefix as `gud'
+             ;; If you do not want to use any prefix, set it to nil.
+             ;; (setq dape-key-prefix "\C-x\C-a")
+
+             :hook
+             ;; Save breakpoints on quit
+             ((kill-emacs . dape-breakpoint-save)
+              ;; Load breakpoints on startup
+              (after-init . dape-breakpoint-load))
+
+             :init
+             ;; To use window configuration like gud (gdb-mi)
+             ;; (setq dape-buffer-window-arrangement 'gud)
+
+             :config
+             ;; Info buffers to the right
+             ;; (setq dape-buffer-window-arrangement 'right)
+
+             ;; Global bindings for setting breakpoints with mouse
+             ;; (dape-breakpoint-global-mode)
+
+             ;; Pulse source line (performance hit)
+             ;; (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line)
+
+             ;; To not display info and/or buffers on startup
+             ;; (remove-hook 'dape-start-hook 'dape-info)
+             ;; (remove-hook 'dape-start-hook 'dape-repl)
+
+             ;; To display info and/or repl buffers on stopped
+             ;; (add-hook 'dape-stopped-hook 'dape-info)
+             ;; (add-hook 'dape-stopped-hook 'dape-repl)
+
+             ;; Kill compile buffer on build success
+             ;; (add-hook 'dape-compile-hook 'kill-buffer)
+
+             ;; Save buffers on startup, useful for interpreted languages
+             ;; (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
+
+             ;; Projectile users
+             ;; (setq dape-cwd-fn 'projectile-project-root)
+             ))))
+
+
+  ;; 
 #+END_SRC
+
+#+RESULTS:
+: t
 
 * Python settings
 
