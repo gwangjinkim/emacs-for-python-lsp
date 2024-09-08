@@ -29,6 +29,30 @@
 
 
 
+;; Dape is only in github - so you use straight.el to access  it:
+
+;; Install straight.el if it's not installed
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; Use straight.el with use-package
+(setq straight-use-package-by-default t)
+(straight-use-package 'use-package)
+
+
+
+
+
 
 ;; load myinit.org
 (org-babel-load-file (expand-file-name "~/.emacs.d/myinit.org"))

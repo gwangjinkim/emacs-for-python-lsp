@@ -172,107 +172,55 @@
   (pyvenv-mode 1)
   (setenv "WORKON_HOME" (get-conda-envs-dir)))
 
-;; debugging
-(let ((debugging-method :dape))
-  (cond ((eq debugging-method :dap-mode)
-         (use-package dap-mode
-           :ensure t
-           :after lsp-mode
-           :config
-           (dap-auto-configure-mode)
-           (require 'dap-python)
-           (setq dap-python-debugger 'debugpy)
 
-           ;; Keybindings for debugging
-           (global-set-key (kbd "C-c d b b") 'dap-breakpoint-toggle) ;; breakpoint
-           (global-set-key (kbd "C-c d s") 'dap-debug)
-           (global-set-key (kbd "C-c d c") 'dap-continue)
-           (global-set-key (kbd "C-c d o") 'dap-next)
-           (global-set-key (kbd "C-c d i") 'dap-step-in)
-           (global-set-key (kbd "C-c d u") 'dap-step-out)
-           (global-set-key (kbd "C-c d q") 'dap-disconnect)
-           (global-set-key (kbd "C-c d r") 'dap-restart-frame)
+;; enable quelpa
 
-           ;; Set a conditional breakpoint
-           (global-set-key (kbd "C-c d b c") 'dap-breakpoint-condition) ;; condition
+;; Install quelpa if not already installed
+(use-package quelpa
+  :ensure t)
 
-           ;; Add an exception breakpoint
-           (global-set-key (kbd "C-c d b e") 'dap-breakpoint-add) ;; exception
-
-           (global-set-key (kbd "C-c d g") 'my/python-debug-config)
-
-           ;; Optional: enable logging for dap-mode
-           (setq dap-print-io t))
-
-         ;; pip install debugpy
-
-         ;; (use-package dap-ui
-         ;;   :ensure t
-         ;;   :config
-         ;;   (dap-ui-mode 1)
-         ;;   (dap-ui-controls-mode 1))
+(use-package quelpa-use-package
+  :ensure t)
 
 
-         (setq dap-python-executable "python3")
 
-         (defun my/python-debug-config ()
-           "Set up the debug configuration for Python."
-           (interactive)
-           (dap-debug
-            (list :type "python"
-                  :args ""
-                  :cwd (projectile-project-root)  ;; Ensure you are in the correct project root
-                  :program (buffer-file-name)
-                  :request "launch"
-                  :name "Python :: Run Configuration"
-                  :env '(("PYTHONPATH" . (projectile-project-root)))))))
-        ((eq debugging-method :dape)
-         (use-package dape
-           :preface
-           ;; By default dape shares the same keybinding prefix as `gud'
-           ;; If you do not want to use any prefix, set it to nil.
-           ;; (setq dape-key-prefix "\C-x\C-a")
+(use-package dape
+  :ensure t
+  :quelpa (dape :fetcher github :repo "svaante/dape")
+  :preface
+  ;; Optionally, set the keybinding prefix. If you do not want any prefix, set it to nil.
+  ;; (setq dape-key-prefix "\C-x\C-a")
 
-           :hook
-           ;; Save breakpoints on quit
-           ((kill-emacs . dape-breakpoint-save)
-            ;; Load breakpoints on startup
-            (after-init . dape-breakpoint-load))
+  :hook
+  ;; Save breakpoints when quitting and load them when starting up
+  (kill-emacs . dape-breakpoint-save)
+  (after-init . dape-breakpoint-load)
 
-           :init
-           ;; To use window configuration like gud (gdb-mi)
-           ;; (setq dape-buffer-window-arrangement 'gud)
+  :init
+  ;; Set the window configuration for dape (choose between 'gud' or 'right')
+  ;; For window arrangement similar to gdb-mi, use 'gud'
+  (setq dape-buffer-window-arrangement 'right)
 
-           :config
-           ;; Info buffers to the right
-           ;; (setq dape-buffer-window-arrangement 'right)
+  :config
+  ;; Enable global mouse-based breakpoints (optional)
+  (dape-breakpoint-global-mode)
 
-           ;; Global bindings for setting breakpoints with mouse
-           ;; (dape-breakpoint-global-mode)
+  ;; Optionally, highlight the source line being executed (may affect performance)
+  (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line)
 
-           ;; Pulse source line (performance hit)
-           ;; (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line)
+  ;; Display additional info and/or REPL buffers when a stop event occurs
+  (add-hook 'dape-stopped-hook 'dape-info)
+  (add-hook 'dape-stopped-hook 'dape-repl)
 
-           ;; To not display info and/or buffers on startup
-           ;; (remove-hook 'dape-start-hook 'dape-info)
-           ;; (remove-hook 'dape-start-hook 'dape-repl)
+  ;; Kill the compile buffer when a build succeeds
+  (add-hook 'dape-compile-hook 'kill-buffer)
 
-           ;; To display info and/or repl buffers on stopped
-           ;; (add-hook 'dape-stopped-hook 'dape-info)
-           ;; (add-hook 'dape-stopped-hook 'dape-repl)
+  ;; Save buffers when starting a debugging session
+  (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
 
-           ;; Kill compile buffer on build success
-           ;; (add-hook 'dape-compile-hook 'kill-buffer)
-
-           ;; Save buffers on startup, useful for interpreted languages
-           ;; (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
-
-           ;; Projectile users
-           ;; (setq dape-cwd-fn 'projectile-project-root)
-           ))))
-
-
-;;
+  ;; For Projectile users, set the working directory to the project root
+  (setq dape-cwd-fn 'projectile-project-root)
+)
 
 ;; Python-specific configuration
 
@@ -282,3 +230,14 @@
 ;; Configure Python shell to use IPython
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i --simple-prompt")
+
+;; Increase garbage collection threshold for performance
+(setq gc-cons-threshold 80000000)
+
+;; Adjust read-process-output-max for larger data from processes
+(setq read-process-output-max (* 1024 1024))  ;; Set to 1MB
+
+;; Make sure to enable eldoc-mode for hover information on variables 
+(eldoc-mode 1)
+;; repeat-mode for ergonomic keybindings
+(repeat-mode 1)
