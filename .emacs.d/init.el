@@ -3,12 +3,12 @@
 (require 'package)
 
 ;; Add MELPA and other archives
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")
+(setq package-archives '(;; ("gnu" . "https://elpa.gnu.org/packages/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")))
-
-
+			 ("melpa" . "https://melpa.org/packages/")
+			 ;; ("org" . "https://orgmode.org/elpa/")
+                         ;; ("melpa-stable" . "https://stable.melpa.org/packages/"))
+			 )
 
 
 ;; Initialize the package system
@@ -37,7 +37,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(dape dap-mode elpy try use-package)))
+ '(package-selected-packages '(orderless corfu dape dap-mode elpy try use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

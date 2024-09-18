@@ -1,1 +1,1 @@
-("/Users/josephus/emacs/emacs-for-python-lsp/" "/Users/josephus/emacs/emacs-for-python/" "/opt/homebrew/" "/Users/josephus/notes/" "/Users/josephus/.emacs.d/" "/Users/josephus/projects/python/chart-prediction/" "~/")
+("/Users/josephus/emacs/emacs-for-python-lsp/" "/Users/josephus/emacs/emacs-for-python/" "/opt/homebrew/" "/Users/josephus/Downloads/cryptotax/" "/Users/josephus/.emacs.d/" "/Users/josephus/notes/" "/Users/josephus/projects/python/chart-prediction/" "~/")
